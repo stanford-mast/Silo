@@ -51,7 +51,7 @@ void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec);
 
 /// Deallocates memory allocated using Silo.
 /// Only call this function with addresses returned by Silo's memory allocation functions.
-/// @param [in] Pointer to the start of the allocated buffer which should be deallocated.
+/// @param [in] ptr Pointer to the start of the allocated buffer which should be deallocated.
 void siloFree(void* ptr);
 
 #ifdef __cplusplus
