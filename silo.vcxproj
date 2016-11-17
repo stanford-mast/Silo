@@ -10,6 +10,9 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\silo.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FB122223-7CDC-4E2B-8CCB-7091D88A8B16}</ProjectGuid>
     <RootNamespace>silo</RootNamespace>
