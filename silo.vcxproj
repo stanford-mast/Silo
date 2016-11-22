@@ -12,6 +12,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\silo.h" />
+    <ClInclude Include="include\silo\pointermap.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\alloc.cpp" />
+    <ClCompile Include="source\pointermap.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FB122223-7CDC-4E2B-8CCB-7091D88A8B16}</ProjectGuid>

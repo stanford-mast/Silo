@@ -18,5 +18,16 @@
     <ClInclude Include="include\silo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\silo\pointermap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\pointermap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\alloc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
