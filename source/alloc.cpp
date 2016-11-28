@@ -15,7 +15,6 @@
 #include "pointermap.h"
 
 #include <cstdint>
-#include <cstdio>
 #include <cstdlib>
 #include <hwloc.h>
 #include <malloc.h>
@@ -38,13 +37,11 @@ void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode)
 		{
 			// NUMA node object contains a valid nodeset, so use it.
 			allocatedBuffer = hwloc_alloc_membind_nodeset(topoGetSystemTopologyObject(), size, numaNodeObject->nodeset, HWLOC_MEMBIND_BIND, 0);
-			printf("Valid NUMA object.\n");
 		}
 		else
 		{
 			// NUMA node object does not contain a valid nodeset, likely because this is a single-node system without actual NUMA objects.
 			allocatedBuffer = hwloc_alloc(topoGetSystemTopologyObject(), size);
-			printf("No NUMA object.\n");
 		}
 	}
 
@@ -56,7 +53,6 @@ void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode)
 		allocatedSpec.size = size;
 
 		siloPointerMapSubmit(1, &allocatedSpec);
-		printf("Allocation successful.\n");
 	}
     
     return allocatedBuffer;
