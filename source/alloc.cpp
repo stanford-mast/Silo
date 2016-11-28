@@ -28,16 +28,38 @@
 
 void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode)
 {
-    hwloc_obj_t numaNodeObject = topoGetNUMANodeObjectAtIndex(numaNode);
+	void* allocatedBuffer = NULL;
+	hwloc_obj_t numaNodeObject = topoGetNUMANodeObjectAtIndex(numaNode);
     
-    printf("NUMA node %u\n", numaNode);
+	// Verify that the supplied NUMA node index is within range.
+	if (NULL != numaNodeObject)
+	{
+		if (1 == hwloc_bitmap_weight(numaNodeObject->nodeset))
+		{
+			// NUMA node object contains a valid nodeset, so use it.
+			allocatedBuffer = hwloc_alloc_membind_nodeset(topoGetSystemTopologyObject(), size, numaNodeObject->nodeset, HWLOC_MEMBIND_BIND, 0);
+			printf("Valid NUMA object.\n");
+		}
+		else
+		{
+			// NUMA node object does not contain a valid nodeset, likely because this is a single-node system without actual NUMA objects.
+			allocatedBuffer = hwloc_alloc(topoGetSystemTopologyObject(), size);
+			printf("No NUMA object.\n");
+		}
+	}
 
-    unsigned int i;
-    hwloc_bitmap_foreach_begin(i, numaNodeObject->nodeset);
-    printf(" -> bit %u is set\n", i);
-    hwloc_bitmap_foreach_end();
+	// If allocation was successful, add the address to the map.
+	if (NULL != allocatedBuffer)
+	{
+		SSiloAllocationSpec allocatedSpec;
+		allocatedSpec.ptr = allocatedBuffer;
+		allocatedSpec.size = size;
+
+		siloPointerMapSubmit(1, &allocatedSpec);
+		printf("Allocation successful.\n");
+	}
     
-    return NULL;
+    return allocatedBuffer;
 }
 
 // --------

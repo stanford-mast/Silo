@@ -22,11 +22,11 @@
 
 /// Provides information about each piece of a multi-node array.
 /// Size is specified in bytes and will be rounded up to the system's memory allocation granularity.
-struct SSiloMemorySpec
+typedef struct SSiloMemorySpec
 {
     size_t size;                                                            ///< Size, in bytes, of the memory region to allocate.
     uint32_t numaNode;                                                      ///< Zero-based index of the NUMA node on which to allocate the memory.
-};
+} SSiloMemorySpec;
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
