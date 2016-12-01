@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\alloc.cpp" />
+    <ClCompile Include="source\free.cpp" />
     <ClCompile Include="source\pointermap.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
