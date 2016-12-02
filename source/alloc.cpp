@@ -9,6 +9,7 @@
  *************************************************************************//**
  * @file alloc.cpp
  *   Implementation of functions that allocate memory. 
+ *   This file contains platform-independent functions.
  *****************************************************************************/
 
 #include "../silo.h"
@@ -54,11 +55,4 @@ void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode)
     }
     
     return allocatedBuffer;
-}
-
-// --------
-
-void* siloMultinodeArrayAlloc(uint32_t count, const SSiloMemorySpec* spec)
-{
-    return NULL;
 }

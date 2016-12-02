@@ -15,6 +15,7 @@
     <ClInclude Include="include\silo\pointermap.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\alloc-windows.cpp" />
     <ClCompile Include="source\alloc.cpp" />
     <ClCompile Include="source\free.cpp" />
     <ClCompile Include="source\pointermap.cpp" />

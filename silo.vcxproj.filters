@@ -32,5 +32,8 @@
     <ClCompile Include="source\free.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\alloc-windows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
