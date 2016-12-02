@@ -28,6 +28,12 @@ To build and link with Silo, the following are required.
   
   Topo provides some helpers and wrappers around the `hwloc` library.
 
+- [**libnuma**](http://oss.sgi.com/projects/libnuma/) (Linux only)
+  
+  Silo makes use of functions in this library for certain memory allocation operations.
+  It is likely available as a package.
+  No equivalent library is required on Windows; all needed functions are built into the operating system.
+
 - [**hwloc**](https://www.open-mpi.org/projects/hwloc/) and its dependencies
   
   Silo makes use of this library to obtain system topology information in a platform-independent manner.

@@ -26,8 +26,8 @@
 /// Can be used to represent a multi-node array when held in a list.
 struct SSiloAllocationSpec
 {
-    void* ptr;                                                              //< Base virtual address.
-    size_t size;                                                            //< Allocation size, in bytes.
+    void* ptr;                                                              ///< Base virtual address.
+    size_t size;                                                            ///< Allocation size, in bytes.
 };
 
  
