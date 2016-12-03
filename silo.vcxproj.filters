@@ -21,6 +21,9 @@
     <ClInclude Include="include\silo\pointermap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\silo\memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\pointermap.cpp">
@@ -32,7 +35,7 @@
     <ClCompile Include="source\free.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\alloc-windows.cpp">
+    <ClCompile Include="source\memory-windows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -12,10 +12,10 @@
  *****************************************************************************/
 
 #include "../silo.h"
+#include "memory.h"
 #include "pointermap.h"
 
 #include <cstdlib>
-#include <hwloc.h>
 #include <malloc.h>
 #include <topo.h>
 #include <vector>
@@ -36,7 +36,7 @@ void siloFree(void* ptr)
         for (size_t i = 0; i < specToFree->size(); ++i)
         {
             const SSiloAllocationSpec& spec = specToFree->at(i);
-            hwloc_free(topoGetSystemTopologyObject(), spec.ptr, spec.size);
+            siloMemoryFreeNUMA(spec.ptr, spec.size);
         }
 
         // Delete the metadata for the just-freed allocation.

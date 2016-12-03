@@ -13,11 +13,11 @@
  *****************************************************************************/
 
 #include "../silo.h"
+#include "memory.h"
 #include "pointermap.h"
 
 #include <cstdint>
 #include <cstdlib>
-#include <hwloc.h>
 #include <topo.h>
 
 
@@ -27,23 +27,13 @@
 void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode)
 {
     void* allocatedBuffer = NULL;
-    hwloc_obj_t numaNodeObject = topoGetNUMANodeObjectAtIndex(numaNode);
+    int32_t numaNodeOSIndex = topoGetNUMANodeOSIndex(numaNode);
     
     // Verify that the supplied NUMA node index is within range.
-    if (NULL != numaNodeObject)
-    {
-        if (1 == hwloc_bitmap_weight(numaNodeObject->nodeset))
-        {
-            // NUMA node object contains a valid nodeset, so use it.
-            allocatedBuffer = hwloc_alloc_membind_nodeset(topoGetSystemTopologyObject(), size, numaNodeObject->nodeset, HWLOC_MEMBIND_BIND, 0);
-        }
-        else
-        {
-            // NUMA node object does not contain a valid nodeset, likely because this is a single-node system without actual NUMA objects.
-            allocatedBuffer = hwloc_alloc(topoGetSystemTopologyObject(), size);
-        }
-    }
-
+    // If so, attempt to allocate the buffer.
+    if (0 <= numaNodeOSIndex)
+        allocatedBuffer = siloMemoryAllocNUMA(size, numaNodeOSIndex);
+    
     // If allocation was successful, add the address to the map.
     if (NULL != allocatedBuffer)
     {

@@ -36,7 +36,7 @@ extern "C" {
 
 /// Allocates a simple virtually-contiguous buffer on a single NUMA node.
 /// Analogous to standard NUMA-aware `malloc`-type functions.
-/// @param [in] size Number of bytes to allocate. Will be rounded up to the system's memory allocation granularity.
+/// @param [in] size Number of bytes to allocate.
 /// @param [in] numaNode Zero-based index of the NUMA node on which to allocate the memory.
 /// @return Pointer to the start of the allocated buffer, or NULL on allocation failure.
 void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode);

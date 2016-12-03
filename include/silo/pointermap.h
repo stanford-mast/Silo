@@ -15,9 +15,9 @@
 
 #pragma once
 
+#include <cstdlib>
+#include <cstdint>
 #include <vector>
-#include <stdlib.h>
-#include <stdint.h>
 
 
 // -------- TYPE DEFINITIONS ----------------------------------------------- //
