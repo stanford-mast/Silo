@@ -14,12 +14,10 @@
 
 #include "../silo.h"
 #include "memory.h"
-#include "pointermap.h"
 
 #include <cstdint>
 #include <cstdlib>
-#include <hwloc.h>
-#include <topo.h>
+#include <numa.h>
 
 
  // -------- FUNCTIONS ------------------------------------------------------ //
