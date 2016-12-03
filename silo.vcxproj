@@ -17,8 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\memory-windows.cpp" />
-    <ClCompile Include="source\alloc.cpp" />
-    <ClCompile Include="source\free.cpp" />
+    <ClCompile Include="source\memory.cpp" />
     <ClCompile Include="source\pointermap.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -7,8 +7,8 @@
  * Department of Electrical Engineering, Stanford University
  * Copyright (c) 2016
  *************************************************************************//**
- * @file alloc.cpp
- *   Implementation of functions that allocate memory. 
+ * @file memory.cpp
+ *   Implementation of functions that (de)allocate memory.
  *   This file contains platform-independent functions.
  *****************************************************************************/
 
@@ -18,6 +18,7 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <malloc.h>
 #include <topo.h>
 
 
@@ -45,4 +46,26 @@ void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode)
     }
     
     return allocatedBuffer;
+}
+
+// --------
+
+void siloFree(void* ptr)
+{
+    const std::vector<SSiloAllocationSpec>* specToFree = siloPointerMapRetrieve(ptr);
+
+    if (NULL == specToFree)
+        free(ptr);
+    else
+    {
+        // Free each piece that was allocated.
+        for (size_t i = 0; i < specToFree->size(); ++i)
+        {
+            const SSiloAllocationSpec& spec = specToFree->at(i);
+            siloMemoryFreeNUMA(spec.ptr, spec.size);
+        }
+
+        // Delete the metadata for the just-freed allocation.
+        siloPointerMapDelete(ptr);
+    }
 }
