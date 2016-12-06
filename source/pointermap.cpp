@@ -46,7 +46,7 @@ const std::vector<SSiloAllocationSpec>* siloPointerMapSubmit(uint32_t count, con
     std::vector<SSiloAllocationSpec>* allocationVector = new std::vector<SSiloAllocationSpec>(count);
 
     for (uint32_t i = 0; i < count; ++i)
-        allocationVector->push_back(specs[i]);
+        (*allocationVector)[i] = specs[i];
 
     siloPointerMap.insert({baseAddress, allocationVector});
     

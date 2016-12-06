@@ -61,7 +61,7 @@ void siloFree(void* ptr)
         // Free each piece that was allocated.
         for (size_t i = 0; i < specToFree->size(); ++i)
         {
-            const SSiloAllocationSpec& spec = specToFree->at(i);
+            const SSiloAllocationSpec& spec = (*specToFree)[i];
             siloMemoryFreeNUMA(spec.ptr, spec.size);
         }
 

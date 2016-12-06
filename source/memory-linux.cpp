@@ -37,7 +37,7 @@ void siloMemoryFreeNUMA(void* ptr, size_t size)
 
 // --------
 
-void* siloMultinodeArrayAlloc(uint32_t count, const SSiloMemorySpec* spec)
+void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec)
 {
     return NULL;
 }

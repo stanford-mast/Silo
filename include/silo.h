@@ -45,9 +45,9 @@ void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode);
 /// The result is a virtually-contiguous memory buffer potentially physically backed by different NUMA nodes.
 /// NUMA awareness can be achieved without adding an additional software indirection step, relying instead on hardware memory address translation.
 /// @param [in] count Number of pieces of the array to allocate.
-/// @param [in] spec Pointer to an array of specifications, each of which fully determines a piece of the multi-node array.
+/// @param [in, out] spec Pointer to an array of specifications, each of which fully determines a piece of the multi-node array. On output, `size` is modified to reflect actual allocated size of each piece.
 /// @return Pointer to the start of the allocated buffer, or NULL on allocation failure.
-void* siloMultinodeArrayAlloc(uint32_t count, const SSiloMemorySpec* spec);
+void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec);
 
 /// Deallocates memory allocated using Silo.
 /// Only call this function with addresses returned by Silo's memory allocation functions.
