@@ -18,7 +18,7 @@
 // -------- FUNCTIONS ------------------------------------------------------ //
 // See "osmemory.h" for documentation.
 
-static size_t siloOSMemoryRoundAllocationSize(size_t unroundedSize, bool useLargePageSupport)
+size_t siloOSMemoryRoundAllocationSize(size_t unroundedSize, bool useLargePageSupport)
 {
     const size_t allocationUnitSize = siloOSMemoryGetGranularity(useLargePageSupport);
 
