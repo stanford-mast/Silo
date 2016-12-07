@@ -7,13 +7,13 @@
  * Department of Electrical Engineering, Stanford University
  * Copyright (c) 2016
  *************************************************************************//**
- * @file memory-linux.cpp
+ * @file osmemory-linux.cpp
  *   Implementation of functions that (de)allocate memory. 
  *   This file contains Linux-specific functions.
  *****************************************************************************/
 
 #include "../silo.h"
-#include "memory.h"
+#include "osmemory.h"
 #include "pointermap.h"
 
 #include <cstdint>
@@ -23,55 +23,34 @@
 #include <unistd.h>
 
 
-// -------- INTERNAL FUNCTIONS --------------------------------------------- //
-
-/// Determines the allocation unit size, with or without considering large page support.
-/// This is a Linux-specific helper function.
-/// @return Allocation unit size, the minimum size of each distinct piece of a multi-node array.
-static inline uint32_t siloLinuxGetAllocationUnitSize(void)
-{
-    return (uint32_t)sysconf(_SC_PAGESIZE);
-}
-
-/// Rounds the requested allocation size to one of a multiple of the allocation granularity.
-/// This is a Linux-specific helper function.
-/// @param [in] unroundedSize Unrounded size, in bytes.
-/// @return `unroundedSize`, rounded to the nearest multiple of the allocation granularity.
-static size_t siloLinuxRoundRequestedAllocationSize(size_t unroundedSize)
-{
-    const size_t allocationUnitSize = siloLinuxGetAllocationUnitSize();
-    
-    const size_t quotient = unroundedSize / allocationUnitSize;
-    const size_t remainder = unroundedSize % allocationUnitSize;
-    
-    if (remainder >= (allocationUnitSize / 2))
-        return allocationUnitSize * (quotient + 1);
-    else
-        return allocationUnitSize * quotient;
-}
-
-
 // -------- FUNCTIONS ------------------------------------------------------ //
-// See "memory.h" and "silo.h" for documentation.
+// See "osmemory.h" for documentation.
 
-void* siloMemoryAllocNUMA(size_t size, uint32_t numaNode)
+size_t siloOSMemoryGetGranularity(bool useLargePageSupport)
+{
+    return (size_t)sysconf(_SC_PAGESIZE);
+}
+
+// --------
+
+void* siloOSMemoryAllocNUMA(size_t size, uint32_t numaNode)
 {
     return numa_alloc_onnode(size, (int)numaNode);
 }
 
 // --------
 
-void siloMemoryFreeNUMA(void* ptr, size_t size)
+void siloOSMemoryFreeNUMA(void* ptr, size_t size)
 {
     numa_free(ptr, size);
 }
 
 // --------
 
-void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec)
+void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
 {
     // Get the minimum allocation unit size.
-    const size_t allocationUnitSize = siloLinuxGetAllocationUnitSize();
+    const size_t allocationUnitSize = siloOSMemoryGetGranularity(false);
     
     // Compute the total number of bytes requested and granted, and simultaneously verify the passed NUMA node indices.
     size_t totalRequestedBytes = 0;
@@ -83,7 +62,7 @@ void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec)
             return NULL;
         
         totalRequestedBytes += spec[i].size;
-        spec[i].size = siloLinuxRoundRequestedAllocationSize(spec[i].size);
+        spec[i].size = siloOSMemoryRoundAllocationSize(spec[i].size, false);
         totalActualBytes += spec[i].size;
     }
     
@@ -99,7 +78,7 @@ void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec)
     }
     
     // Reserve the entire virtual address space on the first NUMA node.
-    void* allocatedBuffer = siloMemoryAllocNUMA(totalActualBytes, topoGetNUMANodeOSIndex(spec[0].numaNode));
+    void* allocatedBuffer = siloOSMemoryAllocNUMA(totalActualBytes, topoGetNUMANodeOSIndex(spec[0].numaNode));
     if (NULL == allocatedBuffer)
         return NULL;
     

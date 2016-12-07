@@ -12,12 +12,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\silo.h" />
-    <ClInclude Include="include\silo\memory.h" />
+    <ClInclude Include="include\silo\osmemory.h" />
     <ClInclude Include="include\silo\pointermap.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\memory-windows.cpp" />
-    <ClCompile Include="source\memory.cpp" />
+    <ClCompile Include="source\osmemory-windows.cpp" />
+    <ClCompile Include="source\osmemory.cpp" />
+    <ClCompile Include="source\silo.cpp" />
     <ClCompile Include="source\pointermap.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

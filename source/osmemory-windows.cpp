@@ -7,13 +7,13 @@
  * Department of Electrical Engineering, Stanford University
  * Copyright (c) 2016
  *************************************************************************//**
- * @file memory-windows.cpp
+ * @file osmemory-windows.cpp
  *   Implementation of functions that (de)allocate memory. 
  *   This file contains Windows-specific functions.
  *****************************************************************************/
 
 #include "../silo.h"
-#include "memory.h"
+#include "osmemory.h"
 #include "pointermap.h"
 
 #include <cstdint>
@@ -37,25 +37,25 @@ static void* siloWindowsMemoryAllocAtNUMA(size_t size, uint32_t numaNode, void* 
     return VirtualAllocExNuma(GetCurrentProcess(), startPtr, size, MEM_RESERVE | (shouldCommit ? MEM_COMMIT : 0) | (useLargePageSupport ? MEM_LARGE_PAGES : 0), PAGE_READWRITE, numaNode);
 }
 
-/// Determines the allocation unit size, with or without considering large page support.
-/// This is a Windows-specific helper function.
-/// @param [in] useLargePageSupport `true` to indicate that large-page size should be considered, `false` otherwise.
-/// @return Allocation unit size, the minimum size of each distinct piece of a multi-node array.
-static DWORD siloWindowsGetAllocationUnitSize(bool useLargePageSupport)
+
+// -------- FUNCTIONS ------------------------------------------------------ //
+// See "osmemory.h" for documentation.
+
+size_t siloOSMemoryGetGranularity(bool useLargePageSupport)
 {
     SYSTEM_INFO systemInfo;
-    DWORD allocationUnitSize = 0, largePageSize = 0;
+    size_t allocationUnitSize = 0, largePageSize = 0;
 
     GetSystemInfo(&systemInfo);
 
     if (useLargePageSupport)
-        largePageSize = (DWORD)GetLargePageMinimum();
+        largePageSize = (size_t)GetLargePageMinimum();
 
     // Return the largest of the system-reported allocation granularity, page size, and (if applicable) large page size.
-    allocationUnitSize = systemInfo.dwAllocationGranularity;
+    allocationUnitSize = (size_t)systemInfo.dwAllocationGranularity;
 
     if (systemInfo.dwPageSize > allocationUnitSize)
-        allocationUnitSize = systemInfo.dwPageSize;
+        allocationUnitSize = (size_t)systemInfo.dwPageSize;
 
     if (largePageSize > allocationUnitSize)
         allocationUnitSize = largePageSize;
@@ -63,46 +63,26 @@ static DWORD siloWindowsGetAllocationUnitSize(bool useLargePageSupport)
     return allocationUnitSize;
 }
 
-/// Rounds the requested allocation size to one of a multiple of the allocation granularity.
-/// This is a Windows-specific helper function.
-/// @param [in] unroundedSize Unrounded size, in bytes.
-/// @param [in] useLargePageSupport `true` to indicate that large-page size should be considered, `false` otherwise.
-/// @return `unroundedSize`, rounded to the nearest multiple of the allocation granularity.
-static size_t siloWindowsRoundRequestedAllocationSize(size_t unroundedSize, bool useLargePageSupport)
-{
-    const size_t allocationUnitSize = siloWindowsGetAllocationUnitSize(useLargePageSupport);
-    
-    const size_t quotient = unroundedSize / allocationUnitSize;
-    const size_t remainder = unroundedSize % allocationUnitSize;
-    
-    if (remainder >= (allocationUnitSize / 2))
-        return allocationUnitSize * (quotient + 1);
-    else
-        return allocationUnitSize * quotient;
-}
+// --------
 
-
-// -------- FUNCTIONS ------------------------------------------------------ //
-// See "memory.h" and "silo.h" for documentation.
-
-void* siloMemoryAllocNUMA(size_t size, uint32_t numaNode)
+void* siloOSMemoryAllocNUMA(size_t size, uint32_t numaNode)
 {
     return siloWindowsMemoryAllocAtNUMA(size, numaNode, NULL, true, false);
 }
 
 // --------
 
-void siloMemoryFreeNUMA(void* ptr, size_t size)
+void siloOSMemoryFreeNUMA(void* ptr, size_t size)
 {
     VirtualFreeEx(GetCurrentProcess(), ptr, 0, MEM_RELEASE);
 }
 
 // --------
 
-void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec)
+void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
 {
     // Get the minimum allocation unit size.
-    const size_t allocationUnitSize = siloWindowsGetAllocationUnitSize(false);
+    const size_t allocationUnitSize = siloOSMemoryGetGranularity(false);
     
     // Compute the total number of bytes requested and granted, and simultaneously verify the passed NUMA node indices.
     size_t totalRequestedBytes = 0;
@@ -114,7 +94,7 @@ void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec)
             return NULL;
         
         totalRequestedBytes += spec[i].size;
-        spec[i].size = siloWindowsRoundRequestedAllocationSize(spec[i].size, false);
+        spec[i].size = siloOSMemoryRoundAllocationSize(spec[i].size, false);
         totalActualBytes += spec[i].size;
     }
     
@@ -138,7 +118,7 @@ void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec)
     SSiloAllocationSpec* allocationSpecs = new SSiloAllocationSpec[count];
 
     // Free the reserved virtual address space, for future piece-wise allocation.
-    siloMemoryFreeNUMA(allocatedBuffer, totalActualBytes);
+    siloOSMemoryFreeNUMA(allocatedBuffer, totalActualBytes);
 
     // Allocate each piece of the multi-node array.
     uint32_t numAllocated = 0;
@@ -166,7 +146,7 @@ void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec)
     {
         // If failed, free the pieces that actually were allocated.
         for (uint32_t i = 0; i < numAllocated; ++i)
-            siloMemoryFreeNUMA(allocationSpecs[i].ptr, allocationSpecs[i].size);
+            siloOSMemoryFreeNUMA(allocationSpecs[i].ptr, allocationSpecs[i].size);
 
         allocatedBuffer = NULL;
     }

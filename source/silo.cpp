@@ -7,13 +7,12 @@
  * Department of Electrical Engineering, Stanford University
  * Copyright (c) 2016
  *************************************************************************//**
- * @file memory.cpp
- *   Implementation of functions that (de)allocate memory.
- *   This file contains platform-independent functions.
+ * @file silo.cpp
+ *   Implementation of all external API functions.
  *****************************************************************************/
 
 #include "../silo.h"
-#include "memory.h"
+#include "osmemory.h"
 #include "pointermap.h"
 
 #include <cstdint>
@@ -25,6 +24,13 @@
 // -------- FUNCTIONS ------------------------------------------------------ //
 // See "silo.h" for documentation.
 
+size_t siloGetAllocationUnitSize(void)
+{
+    return siloOSMemoryGetGranularity(false);
+}
+
+// --------
+
 void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode)
 {
     void* allocatedBuffer = NULL;
@@ -33,7 +39,7 @@ void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode)
     // Verify that the supplied NUMA node index is within range.
     // If so, attempt to allocate the buffer.
     if (0 <= numaNodeOSIndex)
-        allocatedBuffer = siloMemoryAllocNUMA(size, numaNodeOSIndex);
+        allocatedBuffer = siloOSMemoryAllocNUMA(size, numaNodeOSIndex);
     
     // If allocation was successful, add the address to the map.
     if (NULL != allocatedBuffer)
@@ -50,6 +56,13 @@ void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode)
 
 // --------
 
+void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec)
+{
+    return siloOSMemoryAllocMultiNUMA(count, spec);
+}
+
+// --------
+
 void siloFree(void* ptr)
 {
     const std::vector<SSiloAllocationSpec>* specToFree = siloPointerMapRetrieve(ptr);
@@ -62,7 +75,7 @@ void siloFree(void* ptr)
         for (size_t i = 0; i < specToFree->size(); ++i)
         {
             const SSiloAllocationSpec& spec = (*specToFree)[i];
-            siloMemoryFreeNUMA(spec.ptr, spec.size);
+            siloOSMemoryFreeNUMA(spec.ptr, spec.size);
         }
 
         // Delete the metadata for the just-freed allocation.

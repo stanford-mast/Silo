@@ -21,7 +21,7 @@
     <ClInclude Include="include\silo\pointermap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\silo\memory.h">
+    <ClInclude Include="include\silo\osmemory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -29,10 +29,13 @@
     <ClCompile Include="source\pointermap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\memory-windows.cpp">
+    <ClCompile Include="source\silo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\memory.cpp">
+    <ClCompile Include="source\osmemory-windows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\osmemory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
