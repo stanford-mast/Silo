@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <topo.h>
+#include <vector>
 #include <Windows.h>
 
 
@@ -79,7 +80,7 @@ void siloOSMemoryFreeNUMA(void* ptr, size_t size)
 
 // --------
 
-void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
+void* siloOSMemoryAllocMultiNUMA(uint32_t count, const SSiloMemorySpec* spec)
 {
     // Get the minimum allocation unit size.
     const size_t allocationUnitSize = siloOSMemoryGetGranularity(false);
@@ -87,6 +88,7 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
     // Compute the total number of bytes requested and granted, and simultaneously verify the passed NUMA node indices.
     size_t totalRequestedBytes = 0;
     size_t totalActualBytes = 0;
+    std::vector<size_t> actualBytes(count);
     
     for (uint32_t i = 0; i < count; ++i)
     {
@@ -94,8 +96,8 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
             return NULL;
         
         totalRequestedBytes += spec[i].size;
-        spec[i].size = siloOSMemoryRoundAllocationSize(spec[i].size, false);
-        totalActualBytes += spec[i].size;
+        actualBytes[i] = siloOSMemoryRoundAllocationSize(spec[i].size, false);
+        totalActualBytes += actualBytes[i];
     }
     
     // Verify that sufficient space was actually allocated on each node to justify even using this function.
@@ -106,7 +108,7 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
     while (totalActualBytes < totalRequestedBytes)
     {
         totalActualBytes += allocationUnitSize;
-        spec[count].size += allocationUnitSize;
+        actualBytes[count] += allocationUnitSize;
     }
 
     // Reserve the entire virtual address space, as a way of checking for sufficient virtual address space and getting a base address.
@@ -126,7 +128,7 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
     for (; numAllocated < count; ++numAllocated)
     {
         // Attempt to allocate a piece of the array and bail if the attempt results in failure.
-        void* allocationResult = siloWindowsMemoryAllocAtNUMA(spec[numAllocated].size, topoGetNUMANodeOSIndex(spec[numAllocated].numaNode), allocatedBuffer, true, false);
+        void* allocationResult = siloWindowsMemoryAllocAtNUMA(actualBytes[numAllocated], topoGetNUMANodeOSIndex(spec[numAllocated].numaNode), allocatedBuffer, true, false);
         if (NULL == allocationResult)
         {
             allocationSuccessful = false;
@@ -135,10 +137,10 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
         
         // Record the piece that was allocated.
         allocationSpecs[numAllocated].ptr = allocatedBuffer;
-        allocationSpecs[numAllocated].size = spec[numAllocated].size;
+        allocationSpecs[numAllocated].size = actualBytes[numAllocated];
         
         // Advance to the next piece.
-        allocatedBuffer = (void*)((size_t)allocatedBuffer + spec[numAllocated].size);
+        allocatedBuffer = (void*)((size_t)allocatedBuffer + actualBytes[numAllocated]);
     }
     
     // Check for success or failure.
