@@ -44,9 +44,9 @@ void* siloOSMemoryAllocNUMA(size_t size, uint32_t numaNode);
 /// Allocates a multi-node array.
 /// This is aplatform-specific operation.
 /// @param [in] count Number of pieces of the array to allocate.
-/// @param [in, out] spec Pointer to an array of specifications, each of which fully determines a piece of the multi-node array. On output, `size` is modified to reflect actual allocated size of each piece.
+/// @param [in] spec Pointer to an array of specifications, each of which fully determines a piece of the multi-node array.
 /// @return Pointer to the start of the allocated buffer, or NULL on allocation failure.
-void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec);
+void* siloOSMemoryAllocMultiNUMA(uint32_t count, const SSiloMemorySpec* spec);
 
 /// Deallocates the specified memory buffer.
 /// This is a platform-specific operation.

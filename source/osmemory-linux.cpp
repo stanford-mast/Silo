@@ -21,6 +21,7 @@
 #include <numa.h>
 #include <topo.h>
 #include <unistd.h>
+#include <vector>
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
@@ -47,7 +48,7 @@ void siloOSMemoryFreeNUMA(void* ptr, size_t size)
 
 // --------
 
-void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
+void* siloOSMemoryAllocMultiNUMA(uint32_t count, const SSiloMemorySpec* spec)
 {
     // Get the minimum allocation unit size.
     const size_t allocationUnitSize = siloOSMemoryGetGranularity(false);
@@ -55,6 +56,7 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
     // Compute the total number of bytes requested and granted, and simultaneously verify the passed NUMA node indices.
     size_t totalRequestedBytes = 0;
     size_t totalActualBytes = 0;
+    std::vector<size_t> actualBytes(count);
     
     for (uint32_t i = 0; i < count; ++i)
     {
@@ -62,8 +64,8 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
             return NULL;
         
         totalRequestedBytes += spec[i].size;
-        spec[i].size = siloOSMemoryRoundAllocationSize(spec[i].size, false);
-        totalActualBytes += spec[i].size;
+        actualBytes[i] = siloOSMemoryRoundAllocationSize(spec[i].size, false);
+        totalActualBytes += actualBytes[i];
     }
     
     // Verify that sufficient space was actually allocated on each node to justify even using this function.
@@ -74,7 +76,7 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
     while (totalActualBytes < totalRequestedBytes)
     {
         totalActualBytes += allocationUnitSize;
-        spec[count].size += allocationUnitSize;
+        actualBytes[count] += allocationUnitSize;
     }
     
     // Reserve the entire virtual address space on the first NUMA node.
@@ -83,14 +85,14 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, SSiloMemorySpec* spec)
         return NULL;
     
     // Move each piece beyond the first to the correct NUMA node.
-    uint8_t* moveBaseAddress = (uint8_t*)allocatedBuffer + spec[0].size;
+    uint8_t* moveBaseAddress = (uint8_t*)allocatedBuffer + actualBytes[0];
     for (uint32_t i = 1; i < count; ++i)
     {
         // Move the current piece to the specified NUMA node.
-        numa_tonode_memory((void*)moveBaseAddress, spec[i].size, topoGetNUMANodeOSIndex(spec[i].numaNode));
+        numa_tonode_memory((void*)moveBaseAddress, actualBytes[i], topoGetNUMANodeOSIndex(spec[i].numaNode));
         
         // Advance to the next address to move.
-        moveBaseAddress += spec[i].size;
+        moveBaseAddress += actualBytes[i];
     }
     
     // Submit the allocated buffer to the pointer map.

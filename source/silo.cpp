@@ -56,7 +56,7 @@ void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode)
 
 // --------
 
-void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec)
+void* siloMultinodeArrayAlloc(uint32_t count, const SSiloMemorySpec* spec)
 {
     return siloOSMemoryAllocMultiNUMA(count, spec);
 }

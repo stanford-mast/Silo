@@ -54,9 +54,9 @@ void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode);
 /// If no piece is large enough to result in non-zero allocation units, this function will fail.
 /// Actual allocated size of each piece is available on return from this function.
 /// @param [in] count Number of pieces of the array to allocate.
-/// @param [in, out] spec Pointer to an array of specifications, each of which fully determines a piece of the multi-node array. On output, `size` is modified to reflect actual allocated size of each piece.
+/// @param [in] spec Pointer to an array of specifications, each of which fully determines a piece of the multi-node array.
 /// @return Pointer to the start of the allocated buffer, or NULL on allocation failure.
-void* siloMultinodeArrayAlloc(uint32_t count, SSiloMemorySpec* spec);
+void* siloMultinodeArrayAlloc(uint32_t count, const SSiloMemorySpec* spec);
 
 /// Deallocates memory allocated using Silo.
 /// Only call this function with addresses returned by Silo's memory allocation functions.
