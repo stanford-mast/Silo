@@ -74,12 +74,101 @@ Source code examples are provided immediately following.
 
 ## Concepts and Terminology
 
-Coming soon.
+Silo supports allocating two types of buffers: a _simple buffer_ and a _multi-node array_.
+Both are contiguous blocks of memory in virtual address space, but they differ in how they are specified to Silo and how they map to physical memory.
+In all cases, Silo allocates memory in blocks no smaller than the system's allocation granularity, whose value in Bytes may be obtained by calling siloGetAllocationUnitSize().
+
+A _simple buffer_, allocated using siloSimpleBufferAlloc(), is a block of memory local to a single NUMA node, similar to what would be allocated by a call to `malloc()`.
+Silo supports binding the backing physical memory to a specific NUMA node but otherwise behaves identically to any standard memory allocation function.
+
+A _multi-node array_, allocated using siloMultinodeArrayAlloc(), is a virtually-contiguous block of memory backed by different NUMA nodes at controlled boundaries.
+This type of allocation is specified piece-wise, whereby each piece defines the size of a block and the NUMA node that should back it physically.
+The total size of the array is the sum of the sizes of each piece, and each piece may be physically backed by memory on any NUMA node in the system.
+There is no defined limit on the number of pieces that can be specified.
+
+All memory allocated via Silo is to be freed by calling siloFree() and passing only a pointer to the buffer originally returned from one of Silo's memory allocation functions.
+Silo internally handles all required book-keeping so that the operating system can properly free all allocated memory.
 
 
 ## Examples
 
-Coming soon.
+Two examples are provided: one showing how to allocate a simple buffer and one showing how to allocate a multi-node array.
+
+#### Example 1: Simple Buffer Allocation
+
+This example allocates and initializes simple 1GB buffer on the first NUMA node in the system.
+
+~~~{.c}
+#include <silo.h>
+#include <string.h>
+
+int main(int argc, char* argv[])
+{
+    // Allocate the buffer.
+    // Size is the first parameter, NUMA node index is the second.
+    void* allocatedBuffer = siloSimpleBufferAlloc(1024llu * 1024llu * 1024llu, 0);
+    
+    // Use the buffer.
+    if (NULL != allocatedBuffer)
+    {
+        // Initialize the array.
+        memset(allocatedBuffer, 0, 1024llu * 1024llu * 1024llu);
+        
+        // Code goes here...
+    }
+    
+    // Free the buffer.
+    siloFree(allocatedBuffer);
+    
+    return 0;
+}
+~~~
+
+
+#### Example 2: Multi-Node Array Allocation
+
+This example allocates and initializes a multi-node array, 1GB per NUMA node.
+
+~~~{.c}
+#include <malloc.h>
+#include <silo.h>
+#include <string.h>
+#include <topo.h>
+
+int main(int argc, char* argv[])
+{
+    const size_t numNumaNodes = (size_t)topoGetSystemNUMANodeCount();
+    
+    // Create one piece specification per NUMA node in the system.
+    SSiloMemorySpec* specs = (SSiloMemorySpec*)malloc(sizeof(SSiloMemorySpec) * numNumaNodes);
+    if (NULL == specs)
+        return 1;
+    
+    // Initialize the specifications.
+    for (size_t i = 0; i < numNumaNodes; ++i)
+    {
+        specs[i].size = 1024llu * 1024llu * 1024llu;
+        specs[i].numaNode = i;
+    }
+    
+    // Allocate the multi-node array.
+    void* allocatedBuffer = siloMultinodeArrayAlloc(numNumaNodes, specs);
+    
+    // Use the buffer.
+    if (NULL != allocatedBuffer)
+    {
+        // Initialize the array.
+        memset(allocatedBuffer, 0, numNumaNodes * 1024llu * 1024llu * 1024llu);
+        
+        // Code goes here...
+    }
+    
+    // Free the buffer.
+    siloFree(allocatedBuffer);
+    
+    return 0;
+}
+~~~
 
 
 # Copyright
