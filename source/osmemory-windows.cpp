@@ -108,7 +108,7 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, const SSiloMemorySpec* spec)
     while (totalActualBytes < totalRequestedBytes)
     {
         totalActualBytes += allocationUnitSize;
-        actualBytes[count] += allocationUnitSize;
+        actualBytes[count - 1] += allocationUnitSize;
     }
 
     // Reserve the entire virtual address space, as a way of checking for sufficient virtual address space and getting a base address.
