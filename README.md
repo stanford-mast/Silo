@@ -2,7 +2,7 @@ Silo is a multi-platform topology-aware memory management library for x86-based 
 It features a simple API for allocating and deallocating memory in a NUMA-aware manner, including in ways not automatically supported by the underlying system.
 For example, Silo keeps track of all buffers and arrays it allocates to simplify the deallocation procedure.
 
-In addition to simple buffer allocation (in the style of most existing `malloc`-type functions) Silo supports multi-node array allocation.
+In addition to simple buffer allocation (in the style of most existing malloc-type functions) Silo supports multi-node array allocation.
 A multi-node array is a virtually-contiguous buffer physically backed by memory on different NUMA nodes.
 This mode of allocation is useful for the purpose of obtaining NUMA awareness without adding an explicit software layer of indirection, relying on hardware address translation instead.
 
@@ -24,9 +24,9 @@ To build and link with Silo, the following are required.
   64-bit versions of these operating systems are required.
   Other Linux distributions are likely compatible, but they have not been tested.
 
-- **Topo**
+- [**Topo**](https://github.com/samuelgr/Topo)
   
-  Topo provides some helpers and wrappers around the `hwloc` library.
+  Topo provides some helpers and wrappers around the hwloc library.
 
 - [**libnuma**](http://oss.sgi.com/projects/libnuma/) (Linux only)
   
@@ -55,7 +55,7 @@ To build on Linux, just type `make` from within the repository directory.
 
 Projects that make use of Silo should include the top-level silo.h header file and nothing else.
 
-Assuming a Linux-based C-language project that uses Silo and consists of a single source file called `main.c`, the following command would build and link with Silo.
+Assuming a Linux-based C-language project that uses Silo and consists of a single source file called "main.c", the following command would build and link with Silo.
 
     gcc main.c -lsilo -ltopo -lhwloc -lnuma -lpciaccess -lxml2
 
