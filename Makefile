@@ -4,7 +4,7 @@
 ###############################################################################
 # Authored by Samuel Grossman
 # Department of Electrical Engineering, Stanford University
-# Copyright (c) 2016
+# Copyright (c) 2016-2017
 ###############################################################################
 # Makefile
 #   Build script for GNU-compatible Linux operating systems.

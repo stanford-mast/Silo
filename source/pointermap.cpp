@@ -5,7 +5,7 @@
  *****************************************************************************
  * Authored by Samuel Grossman
  * Department of Electrical Engineering, Stanford University
- * Copyright (c) 2016
+ * Copyright (c) 2016-2017
  *************************************************************************//**
  * @file pointermap.cpp
  *   Implementation of map data structures for holding allocation information.

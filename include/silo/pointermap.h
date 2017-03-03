@@ -5,7 +5,7 @@
  *****************************************************************************
  * Authored by Samuel Grossman
  * Department of Electrical Engineering, Stanford University
- * Copyright (c) 2016
+ * Copyright (c) 2016-2017
  *************************************************************************//**
  * @file pointermap.h
  *   Declaration of map interface for holding allocation information.
