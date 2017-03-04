@@ -24,7 +24,7 @@ To build and link with Silo, the following are required.
   64-bit versions of these operating systems are required.
   Other Linux distributions are likely compatible, but they have not been tested.
 
-- [**Topo**](https://github.com/samuelgr/Topo)
+- [**Topo**](https://github.com/stanford-mast/Topo)
   
   Topo provides some helpers and wrappers around the hwloc library.
 
