@@ -24,6 +24,13 @@
 // -------- FUNCTIONS ------------------------------------------------------ //
 // See "silo.h" for documentation.
 
+uint32_t siloGetLibraryVersion(void)
+{
+    return SILO_LIBRARY_VERSION;
+}
+
+// --------
+
 size_t siloGetAllocationUnitSize(void)
 {
     return siloOSMemoryGetGranularity(false);

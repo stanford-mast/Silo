@@ -18,6 +18,14 @@
 #include <stdint.h>
 
 
+// -------- VERSION INFORMATION -------------------------------------------- //
+
+/// 32-bit unsigned integer that represents the version of Silo.
+/// Incremented each time a change is made that affects the API.
+/// - Version 1: Initial release.
+#define SILO_LIBRARY_VERSION                    0x00000001
+
+
 // -------- TYPE DEFINITIONS ----------------------------------------------- //
 
 /// Provides information about each piece of a multi-node array.
@@ -33,6 +41,10 @@ typedef struct SSiloMemorySpec
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/// Retrieves and returns the compiled Silo library version.
+/// @return Silo library version number.
+uint32_t siloGetLibraryVersion(void);
 
 /// Retrieves the allocation granularity.
 /// This is a system-specific value and is a multiple of the virtual page size.
