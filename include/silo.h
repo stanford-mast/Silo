@@ -23,7 +23,8 @@
 /// 32-bit unsigned integer that represents the version of Silo.
 /// Incremented each time a change is made that affects the API.
 /// - Version 1: Initial release.
-#define SILO_LIBRARY_VERSION                    0x00000001
+/// - Version 2: Added #siloGetNUMANodeForVirtualAddress.
+#define SILO_LIBRARY_VERSION                    0x00000002
 
 
 // -------- TYPE DEFINITIONS ----------------------------------------------- //
@@ -51,6 +52,12 @@ uint32_t siloGetLibraryVersion(void);
 /// Each piece of a multi-node array will be a multiple of the system allocation granularity.
 /// @return System-specific allocation granularity.
 size_t siloGetAllocationUnitSize(void);
+
+/// Retrieves the OS index of the NUMA node to which the specified virtual address is bound.
+/// Performs a test 1-byte read from the supplied address, which need not be part of a buffer allocated by Silo.
+/// @param [in] address Virtual address to check.
+/// @return OS index of the NUMA node to which the virtual address is bound, or a negative value in the event of an error.
+int32_t siloGetNUMANodeForVirtualAddress(void* address);
 
 /// Allocates a simple virtually-contiguous buffer on a single NUMA node.
 /// Analogous to standard NUMA-aware `malloc`-type functions.

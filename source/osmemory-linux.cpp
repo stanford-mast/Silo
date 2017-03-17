@@ -34,6 +34,14 @@ size_t siloOSMemoryGetGranularity(bool useLargePageSupport)
 
 // --------
 
+int32_t siloOSMemoryGetNUMANodeForVirtualAddress(void* address)
+{
+    // Not yet implemented.
+    return -1;
+}
+
+// --------
+
 void* siloOSMemoryAllocNUMA(size_t size, uint32_t numaNode)
 {
     return numa_alloc_onnode(size, (int)numaNode);

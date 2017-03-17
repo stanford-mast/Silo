@@ -11,11 +11,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\silo\consume.h" />
     <ClInclude Include="include\silo.h" />
     <ClInclude Include="include\silo\osmemory.h" />
     <ClInclude Include="include\silo\pointermap.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\consume.cpp" />
     <ClCompile Include="source\osmemory-windows.cpp" />
     <ClCompile Include="source\osmemory.cpp" />
     <ClCompile Include="source\silo.cpp" />

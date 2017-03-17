@@ -27,6 +27,12 @@
 /// @return Allocation unit size, the minimum size of each distinct piece of a multi-node array.
 size_t siloOSMemoryGetGranularity(bool useLargePageSupport);
 
+/// Checks with the operating system to determine the NUMA node to which a particular virtual address is bound.
+/// This is a platform-specific operation.
+/// @param [in] address Virtual address to check.
+/// @return OS identifier of the bound NUMA node, or negative in the event of an error.
+int32_t siloOSMemoryGetNUMANodeForVirtualAddress(void* address);
+
 /// Rounds the provided allocation size to the nearest multiple of the system's allocation granularity.
 /// This is a platform-independent operation.
 /// @param [in] unroundedSize Unrounded size, in bytes.

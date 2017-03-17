@@ -20,6 +20,7 @@
 #include <cstdlib>
 #include <topo.h>
 #include <vector>
+#include <Psapi.h>
 #include <Windows.h>
 
 
@@ -62,6 +63,22 @@ size_t siloOSMemoryGetGranularity(bool useLargePageSupport)
         allocationUnitSize = largePageSize;
 
     return allocationUnitSize;
+}
+
+// --------
+
+int32_t siloOSMemoryGetNUMANodeForVirtualAddress(void* address)
+{
+    PSAPI_WORKING_SET_EX_INFORMATION addressInfo;
+    addressInfo.VirtualAddress = address;
+
+    if (0 == QueryWorkingSetEx(GetCurrentProcess(), (void*)&addressInfo, sizeof(addressInfo)))
+        return -1;
+
+    if (!addressInfo.VirtualAttributes.Valid)
+        return -1;
+
+    return (int32_t)addressInfo.VirtualAttributes.Node;
 }
 
 // --------

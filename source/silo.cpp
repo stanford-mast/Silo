@@ -12,6 +12,7 @@
  *****************************************************************************/
 
 #include "../silo.h"
+#include "consume.h"
 #include "osmemory.h"
 #include "pointermap.h"
 
@@ -34,6 +35,18 @@ uint32_t siloGetLibraryVersion(void)
 size_t siloGetAllocationUnitSize(void)
 {
     return siloOSMemoryGetGranularity(false);
+}
+
+// --------
+
+int32_t siloGetNUMANodeForVirtualAddress(void* address)
+{
+    // Ensure the address is part of the working set.
+    // Without this step, the operating system might not be able to provide the requested information.
+    siloConsumeByte(*((uint8_t*)address));
+    
+    // Redirect to the operating system.
+    return siloOSMemoryGetNUMANodeForVirtualAddress(address);
 }
 
 // --------
