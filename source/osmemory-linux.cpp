@@ -13,12 +13,14 @@
  *****************************************************************************/
 
 #include "../silo.h"
+#include "consume.h"
 #include "osmemory.h"
 #include "pointermap.h"
 
 #include <cstdint>
 #include <cstdlib>
 #include <numa.h>
+#include <numaif.h>
 #include <topo.h>
 #include <unistd.h>
 #include <vector>
@@ -36,8 +38,23 @@ size_t siloOSMemoryGetGranularity(bool useLargePageSupport)
 
 int32_t siloOSMemoryGetNUMANodeForVirtualAddress(void* address)
 {
-    // Not yet implemented.
-    return -1;
+    int nodeResult = -1;
+    
+    if (0 != move_pages(0, 1, &address, NULL, &nodeResult, 0))
+        return -1;
+    
+    if (-EFAULT == nodeResult)
+    {
+        // If the page was not yet faulted into memory, the requested information will not be available.
+        // A write is sometimes required to cause a fault, so try a write here and query again.
+        uint8_t* byteAddress = (uint8_t*)address;
+        *byteAddress = siloConsumeByte(*byteAddress);
+        
+        if (0 != move_pages(0, 1, &address, NULL, &nodeResult, 0))
+            return -1;
+    }
+    
+    return (int32_t)nodeResult;
 }
 
 // --------

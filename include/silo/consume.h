@@ -19,7 +19,8 @@
 
 // -------- FUNCTIONS ------------------------------------------------------ //
 
-/// Consumes a byte. Does nothing with it.
-/// Intended to be invoked on the result of a byte read from memory that is used as a test.
-/// Ensures the compiler does not optimize away the read from memory.
-void siloConsumeByte(uint8_t byte);
+/// Consumes a byte. Returns the same input it is provided.
+/// Intended to ensure the compiler does not optimize away test memory operations.
+/// @param [byte] Byte to consume.
+/// @return `byte` is returned.
+uint8_t siloConsumeByte(uint8_t byte);

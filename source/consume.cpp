@@ -17,7 +17,7 @@
  // -------- FUNCTIONS ------------------------------------------------------ //
  // See "consume.h" for documentation.
 
-void siloConsumeByte(uint8_t byte)
+uint8_t siloConsumeByte(uint8_t byte)
 {
-    // This function body is intentionally empty.
+    return byte;
 }
