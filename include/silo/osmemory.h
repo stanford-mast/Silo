@@ -47,6 +47,12 @@ size_t siloOSMemoryRoundAllocationSize(size_t unroundedSize, bool useLargePageSu
 /// @return Pointer to the start of the allocated buffer, or NULL on allocation failure.
 void* siloOSMemoryAllocNUMA(size_t size, uint32_t numaNode);
 
+/// Alloctes a memory buffer on the calling thread's current NUMA node.
+/// This is a platform-specific operation.
+/// @param [in] size Number of bytes to allocate.
+/// @return Pointer to the start of the allocated buffer, or NULL on allocation failure.
+void* siloOSMemoryAllocLocalNUMA(size_t size);
+
 /// Allocates a multi-node array.
 /// This is aplatform-specific operation.
 /// @param [in] count Number of pieces of the array to allocate.

@@ -66,6 +66,13 @@ void* siloOSMemoryAllocNUMA(size_t size, uint32_t numaNode)
 
 // --------
 
+void* siloOSMemoryAllocLocalNUMA(size_t size)
+{
+    return numa_alloc_local(size);
+}
+
+// --------
+
 void siloOSMemoryFreeNUMA(void* ptr, size_t size)
 {
     numa_free(ptr, size);

@@ -24,7 +24,8 @@
 /// Incremented each time a change is made that affects the API.
 /// - Version 1: Initial release.
 /// - Version 2: Added #siloGetNUMANodeForVirtualAddress.
-#define SILO_LIBRARY_VERSION                    0x00000002
+/// - Version 3: Added #siloSimpleBufferAllocLocal.
+#define SILO_LIBRARY_VERSION                    0x00000003
 
 
 // -------- TYPE DEFINITIONS ----------------------------------------------- //
@@ -65,6 +66,12 @@ int32_t siloGetNUMANodeForVirtualAddress(void* address);
 /// @param [in] numaNode Zero-based index of the NUMA node on which to allocate the memory.
 /// @return Pointer to the start of the allocated buffer, or NULL on allocation failure.
 void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode);
+
+/// Allocates a simple virtually-contiguous buffer on a single NUMA node.
+/// The backing NUMA node is the same as the node on which the calling thread is currently executing.
+/// @param [in] size Number of bytes to allocate.
+/// @return Pointer to the start of the allocated buffer, or NULL on allocation failure.
+void* siloSimpleBufferAllocLocal(size_t size);
 
 /// Allocates a multi-node array, whose dimensions are specified piecewise.
 /// The result is a virtually-contiguous memory buffer potentially physically backed by different NUMA nodes.

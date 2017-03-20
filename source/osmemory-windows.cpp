@@ -90,6 +90,21 @@ void* siloOSMemoryAllocNUMA(size_t size, uint32_t numaNode)
 
 // --------
 
+void* siloOSMemoryAllocLocalNUMA(size_t size)
+{
+    PROCESSOR_NUMBER processorNumber;
+    USHORT numaNode;
+
+    // Query the operating system to determine the NUMA node identifier for the current thread.
+    GetCurrentProcessorNumberEx(&processorNumber);
+    if (0 == GetNumaProcessorNodeEx(&processorNumber, &numaNode))
+        return NULL;
+    
+    return siloWindowsMemoryAllocAtNUMA(size, (uint32_t)numaNode, NULL, true, false);
+}
+
+// --------
+
 void siloOSMemoryFreeNUMA(void* ptr, size_t size)
 {
     VirtualFreeEx(GetCurrentProcess(), ptr, 0, MEM_RELEASE);

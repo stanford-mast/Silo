@@ -76,6 +76,25 @@ void* siloSimpleBufferAlloc(size_t size, uint32_t numaNode)
 
 // --------
 
+void* siloSimpleBufferAllocLocal(size_t size)
+{
+    void* allocatedBuffer = siloOSMemoryAllocLocalNUMA(size);
+
+    // If allocation was successful, add the address to the map.
+    if (NULL != allocatedBuffer)
+    {
+        SSiloAllocationSpec allocatedSpec;
+        allocatedSpec.ptr = allocatedBuffer;
+        allocatedSpec.size = size;
+
+        siloPointerMapSubmit(1, &allocatedSpec);
+    }
+
+    return allocatedBuffer;
+}
+
+// --------
+
 void* siloMultinodeArrayAlloc(uint32_t count, const SSiloMemorySpec* spec)
 {
     return siloOSMemoryAllocMultiNUMA(count, spec);

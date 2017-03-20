@@ -16,6 +16,7 @@
 
 #include <cstdlib>
 #include <cstdint>
+#include <mutex>
 #include <vector>
 #include <unordered_map>
 
@@ -26,12 +27,17 @@
 /// Maps base address information to size (for end-user convenience) and tracks piece-wise allocations of multi-node arrays.
 static std::unordered_map<void*, const std::vector<SSiloAllocationSpec>*> siloPointerMap;
 
+/// Used as a lock to guard access to #siloPointerMap.
+static std::mutex siloPointerMapLock;
+
 
 // -------- FUNCTIONS ------------------------------------------------------ //
 // See "pointermap.h" for documentation.
 
 const std::vector<SSiloAllocationSpec>* siloPointerMapSubmit(uint32_t count, const SSiloAllocationSpec* specs)
 {
+    std::lock_guard<std::mutex> siloPointerMapLocalGuard(siloPointerMapLock);
+    
     // Sanity check.
     if (1 > count)
         return NULL;
@@ -47,7 +53,7 @@ const std::vector<SSiloAllocationSpec>* siloPointerMapSubmit(uint32_t count, con
 
     for (uint32_t i = 0; i < count; ++i)
         (*allocationVector)[i] = specs[i];
-
+    
     siloPointerMap.insert({baseAddress, allocationVector});
     
     return allocationVector;
@@ -57,8 +63,10 @@ const std::vector<SSiloAllocationSpec>* siloPointerMapSubmit(uint32_t count, con
 
 const std::vector<SSiloAllocationSpec>* siloPointerMapRetrieve(void* ptr)
 {
-    const std::vector<SSiloAllocationSpec>* result = NULL;
+    std::lock_guard<std::mutex> siloPointerMapLocalGuard(siloPointerMapLock);
 
+    const std::vector<SSiloAllocationSpec>* result = NULL;
+    
     if (0 != siloPointerMap.count(ptr))
         result = siloPointerMap[ptr];
 
@@ -69,6 +77,8 @@ const std::vector<SSiloAllocationSpec>* siloPointerMapRetrieve(void* ptr)
 
 void siloPointerMapDelete(void* ptr)
 {
+    std::lock_guard<std::mutex> siloPointerMapLocalGuard(siloPointerMapLock);
+
     if (0 != siloPointerMap.count(ptr))
     {
         delete siloPointerMap[ptr];
