@@ -57,7 +57,7 @@ Projects that make use of Silo should include the top-level silo.h header file a
 
 Assuming a Linux-based C-language project that uses Silo and consists of a single source file called "main.c", the following command would build and link with Silo.
 
-    gcc main.c -lsilo -ltopo -lhwloc -lnuma -lpciaccess -lxml2
+    g++ main.c -lsilo -ltopo -lhwloc -lnuma -lpciaccess -lxml2
 
 
 # Getting Started
