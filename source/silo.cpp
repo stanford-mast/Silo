@@ -11,7 +11,6 @@
  *   Implementation of all external API functions.
  *****************************************************************************/
 
-#include "../silo.h"
 #include "consume.h"
 #include "osmemory.h"
 #include "pointermap.h"
@@ -24,13 +23,6 @@
 
 // -------- FUNCTIONS ------------------------------------------------------ //
 // See "silo.h" for documentation.
-
-uint32_t siloGetLibraryVersion(void)
-{
-    return SILO_LIBRARY_VERSION;
-}
-
-// --------
 
 size_t siloGetAllocationUnitSize(void)
 {
