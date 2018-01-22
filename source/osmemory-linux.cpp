@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <numa.h>
 #include <numaif.h>
+#include <sched.h>
 #include <topo.h>
 #include <unistd.h>
 #include <vector>
@@ -68,7 +69,7 @@ void* siloOSMemoryAllocNUMA(size_t size, uint32_t numaNode)
 
 void* siloOSMemoryAllocLocalNUMA(size_t size)
 {
-    return numa_alloc_local(size);
+    return numa_alloc_onnode(size, numa_node_of_cpu(sched_getcpu()));
 }
 
 // --------
