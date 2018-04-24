@@ -85,7 +85,7 @@ int32_t siloOSMemoryGetNUMANodeForVirtualAddress(void* address)
 
 void* siloOSMemoryAllocNUMA(size_t size, uint32_t numaNode)
 {
-    return siloWindowsMemoryAllocAtNUMA(size, numaNode, NULL, true, siloOSMemoryGetNUMANodeForVirtualAddress(size));
+    return siloWindowsMemoryAllocAtNUMA(size, numaNode, NULL, true, siloOSMemoryShouldAutoEnableLargePageSupport(size));
 }
 
 // --------
