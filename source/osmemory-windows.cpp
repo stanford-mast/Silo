@@ -85,7 +85,7 @@ int32_t siloOSMemoryGetNUMANodeForVirtualAddress(void* address)
 
 void* siloOSMemoryAllocNUMA(size_t size, uint32_t numaNode)
 {
-    return siloWindowsMemoryAllocAtNUMA(size, numaNode, NULL, true, false);
+    return siloWindowsMemoryAllocAtNUMA(size, numaNode, NULL, true, siloOSMemoryGetNUMANodeForVirtualAddress(size));
 }
 
 // --------
@@ -100,7 +100,7 @@ void* siloOSMemoryAllocLocalNUMA(size_t size)
     if (0 == GetNumaProcessorNodeEx(&processorNumber, &numaNode))
         return NULL;
     
-    return siloWindowsMemoryAllocAtNUMA(size, (uint32_t)numaNode, NULL, true, false);
+    return siloOSMemoryAllocNUMA(size, (uint32_t)numaNode);
 }
 
 // --------
@@ -114,11 +114,18 @@ void siloOSMemoryFreeNUMA(void* ptr, size_t size)
 
 void* siloOSMemoryAllocMultiNUMA(uint32_t count, const SSiloMemorySpec* spec)
 {
+    // Figure out if large page support is worth it.
+    size_t totalRequestedBytes = 0;
+    
+    for (uint32_t i = 0; i < count; ++i)
+        totalRequestedBytes += spec[i].size;
+    
+    const bool useLargePageSupport = siloOSMemoryShouldAutoEnableLargePageSupport(totalRequestedBytes);
+    
     // Get the minimum allocation unit size.
-    const size_t allocationUnitSize = siloOSMemoryGetGranularity(false);
+    const size_t allocationUnitSize = siloOSMemoryGetGranularity(useLargePageSupport);
     
     // Compute the total number of bytes requested and granted, and simultaneously verify the passed NUMA node indices.
-    size_t totalRequestedBytes = 0;
     size_t totalActualBytes = 0;
     std::vector<size_t> actualBytes(count);
     
@@ -127,8 +134,7 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, const SSiloMemorySpec* spec)
         if (0 > topoGetNUMANodeOSIndex(spec[i].numaNode))
             return NULL;
         
-        totalRequestedBytes += spec[i].size;
-        actualBytes[i] = siloOSMemoryRoundAllocationSize(spec[i].size, false);
+        actualBytes[i] = siloOSMemoryRoundAllocationSize(spec[i].size, useLargePageSupport);
         totalActualBytes += actualBytes[i];
     }
     
@@ -144,7 +150,7 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, const SSiloMemorySpec* spec)
     }
 
     // Reserve the entire virtual address space, as a way of checking for sufficient virtual address space and getting a base address.
-    void* allocatedBuffer = siloWindowsMemoryAllocAtNUMA(totalActualBytes, 0, NULL, false, false);
+    void* allocatedBuffer = siloWindowsMemoryAllocAtNUMA(totalActualBytes, 0, NULL, false, useLargePageSupport);
     if (NULL == allocatedBuffer)
         return NULL;
 
@@ -160,7 +166,7 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, const SSiloMemorySpec* spec)
     for (; numAllocated < count; ++numAllocated)
     {
         // Attempt to allocate a piece of the array and bail if the attempt results in failure.
-        void* allocationResult = siloWindowsMemoryAllocAtNUMA(actualBytes[numAllocated], topoGetNUMANodeOSIndex(spec[numAllocated].numaNode), allocatedBuffer, true, false);
+        void* allocationResult = siloWindowsMemoryAllocAtNUMA(actualBytes[numAllocated], topoGetNUMANodeOSIndex(spec[numAllocated].numaNode), allocatedBuffer, true, useLargePageSupport);
         if (NULL == allocationResult)
         {
             allocationSuccessful = false;

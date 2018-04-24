@@ -25,6 +25,7 @@
 #include <topo.h>
 #include <unistd.h>
 #include <vector>
+#include <sys/mman.h>
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
@@ -32,7 +33,10 @@
 
 size_t siloOSMemoryGetGranularity(bool useLargePageSupport)
 {
-    return (size_t)sysconf(_SC_PAGESIZE);
+    if (true == useLargePageSupport)
+        return (size_t)2097152;
+    else    
+        return (size_t)sysconf(_SC_PAGESIZE);
 }
 
 // --------
@@ -62,14 +66,19 @@ int32_t siloOSMemoryGetNUMANodeForVirtualAddress(void* address)
 
 void* siloOSMemoryAllocNUMA(size_t size, uint32_t numaNode)
 {
-    return numa_alloc_onnode(size, (int)numaNode);
+    void* result = numa_alloc_onnode(size, (int)numaNode);
+    
+    if ((NULL != result) && (siloOSMemoryShouldAutoEnableLargePageSupport(size)))
+        madvise(result, size, MADV_HUGEPAGE);
+    
+    return result;
 }
 
 // --------
 
 void* siloOSMemoryAllocLocalNUMA(size_t size)
 {
-    return numa_alloc_onnode(size, numa_node_of_cpu(sched_getcpu()));
+    return siloOSMemoryAllocNUMA(size, numa_node_of_cpu(sched_getcpu()));
 }
 
 // --------
@@ -83,11 +92,18 @@ void siloOSMemoryFreeNUMA(void* ptr, size_t size)
 
 void* siloOSMemoryAllocMultiNUMA(uint32_t count, const SSiloMemorySpec* spec)
 {
+    // Figure out if large page support is worth it.
+    size_t totalRequestedBytes = 0;
+    
+    for (uint32_t i = 0; i < count; ++i)
+        totalRequestedBytes += spec[i].size;
+    
+    const bool useLargePageSupport = siloOSMemoryShouldAutoEnableLargePageSupport(totalRequestedBytes);
+    
     // Get the minimum allocation unit size.
-    const size_t allocationUnitSize = siloOSMemoryGetGranularity(false);
+    const size_t allocationUnitSize = siloOSMemoryGetGranularity(useLargePageSupport);
     
     // Compute the total number of bytes requested and granted, and simultaneously verify the passed NUMA node indices.
-    size_t totalRequestedBytes = 0;
     size_t totalActualBytes = 0;
     std::vector<size_t> actualBytes(count);
     
@@ -96,8 +112,7 @@ void* siloOSMemoryAllocMultiNUMA(uint32_t count, const SSiloMemorySpec* spec)
         if (0 > topoGetNUMANodeOSIndex(spec[i].numaNode))
             return NULL;
         
-        totalRequestedBytes += spec[i].size;
-        actualBytes[i] = siloOSMemoryRoundAllocationSize(spec[i].size, false);
+        actualBytes[i] = siloOSMemoryRoundAllocationSize(spec[i].size, useLargePageSupport);
         totalActualBytes += actualBytes[i];
     }
     

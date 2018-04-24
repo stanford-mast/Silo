@@ -40,6 +40,11 @@ int32_t siloOSMemoryGetNUMANodeForVirtualAddress(void* address);
 /// @return `unroundedSize`, rounded to the nearest multiple of the allocation granularity.
 size_t siloOSMemoryRoundAllocationSize(size_t unroundedSize, bool useLargePageSupport);
 
+/// Determines if large page support should automatically be turned on, given that the buffer to be allocated is of the specified size.
+/// @param [in] unroundedSize Requested size of the buffer before rounding is applied.
+/// @return `true` if large page support should automatically be turned on, `false` otherwise.
+bool siloOSMemoryShouldAutoEnableLargePageSupport(size_t unroundedSize);
+
 /// Allocates a memory buffer on the specified NUMA node.
 /// This is a platform-specific operation.
 /// @param [in] size Number of bytes to allocate.

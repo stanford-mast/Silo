@@ -15,6 +15,12 @@
 #include "osmemory.h"
 
 
+// -------- CONSTANTS ------------------------------------------------------ //
+
+/// Minimum buffer allocation size before Silo will automatically enable large page support.
+static size_t kSiloAutoLargePageMinimumSize = 1048576;
+
+
 // -------- FUNCTIONS ------------------------------------------------------ //
 // See "osmemory.h" for documentation.
 
@@ -29,4 +35,11 @@ size_t siloOSMemoryRoundAllocationSize(size_t unroundedSize, bool useLargePageSu
         return allocationUnitSize * (quotient + 1);
     else
         return allocationUnitSize * quotient;
+}
+
+// --------
+
+bool siloOSMemoryShouldAutoEnableLargePageSupport(size_t unroundedSize)
+{
+    return (unroundedSize >= kSiloAutoLargePageMinimumSize);
 }
